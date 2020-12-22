@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import {
   Table,
@@ -10,8 +10,8 @@ import {
   Paper,
 } from "@material-ui/core";
 import moment from "moment";
-import config from "../Config";
 import { getEvents } from "../GraphService";
+import { AuthContext } from "../Context/AuthContext";
 
 const formatDateTime = (datetime) => {
   return moment.utc(datetime).local().format("DD/MM/YYYY hh:mm");
@@ -43,15 +43,14 @@ const useStyles = makeStyles({
 
 const Meetings = () => {
   const classes = useStyles();
+  const { accessToken } = useContext(AuthContext);
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
     const getData = async () => {
       try {
-        let accessToken = await window.msal.acquireTokenSilent({
-          scopes: config.scopes,
-        });
         let data = await getEvents(accessToken);
+        console.log(data);
         setEvents(data.value);
       } catch (error) {
         console.log(error);
@@ -59,7 +58,7 @@ const Meetings = () => {
     };
 
     getData();
-  });
+  }, []);
 
   return (
     <TableContainer component={Paper}>
